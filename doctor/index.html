@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Doctor Appointment Booking</title>
+    <meta name="description" content="Book appointments with Dr. Smith. Simple, fast, and secure." />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🩺</text></svg>">
+    <!-- Tailwind CSS via CDN (for quick demo; switch to build step later) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: { brand: { 50: '#eff6ff', 500: '#2563eb', 600: '#1d4ed8', 700: '#1e40af' } }
+          }
+        }
+      }
+    </script>
+    <!-- React 18 + Babel for JSX compilation in-browser (demo only) -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  </head>
+  <body class="bg-gray-50 text-gray-900">
+    <div id="root"></div>
+
+    <!-- Load page/component scripts before the router so they are available on window -->
+    <script type="text/babel" data-type="module">
+      // Minimal export shim for CDN React without bundler
+      window.__exports = (ns, obj) => { Object.assign(window, { [ns]: obj }); };
+    </script>
+
+    <!-- Shared utils used by components -->
+    <script type="text/babel" data-type="module" src="./utils/classNames.js"></script>
+    <script type="text/babel" data-type="module" src="./utils/time.js"></script>
+    <script type="text/babel" data-type="module" src="./utils/mockAuth.js"></script>
+    <script type="text/babel" data-type="module" src="./utils/authUtils.js"></script>
+
+    <!-- Components -->
+    <script type="text/babel" data-type="module" src="./components/Header.jsx"></script>
+    <script type="text/babel" data-type="module" src="./components/Footer.jsx"></script>
+    <script type="text/babel" data-type="module" src="./components/ServiceCard.jsx"></script>
+    <script type="text/babel" data-type="module" src="./components/DoctorCarousel.jsx"></script>
+    <script type="text/babel" data-type="module" src="./components/DoctorHero.jsx"></script>
+    <script type="text/babel" data-type="module" src="./components/Booking/ServicePicker.jsx"></script>
+    <script type="text/babel" data-type="module" src="./components/Booking/DatePicker.jsx"></script>
+    <script type="text/babel" data-type="module" src="./components/Booking/SlotGrid.jsx"></script>
+    <script type="text/babel" data-type="module" src="./components/Booking/PatientForm.jsx"></script>
+    <script type="text/babel" data-type="module" src="./components/Booking/Summary.jsx"></script>
+    <script type="text/babel" data-type="module" src="./pages/Payment.jsx"></script>
+    <script type="text/babel" data-type="module" src="./pages/Success.jsx"></script>
+    <script type="text/babel" data-type="module" src="./pages/Login.jsx"></script>
+    <script type="text/babel" data-type="module" src="./pages/Register.jsx"></script>
+    <script type="text/babel" data-type="module" src="./pages/Dashboard.jsx"></script>
+    <script type="text/babel" data-type="module" src="./pages/AdminDashboard.jsx"></script>
+
+    <!-- Pages register themselves on window for the router -->
+    <script type="text/babel" data-presets="react">
+      var Header = window.Header;
+      var DoctorHero = window.DoctorHero;
+      var ServiceCard = window.ServiceCard;
+      var Footer = window.Footer;
+      const Home = function Home() {
+        const [profile, setProfile] = React.useState(null);
+        const SERVICES = [
+          { id: 'consult', name: 'General Consultation', durationMin: 30, price: 500, desc: 'Initial assessment and advice.' },
+          { id: 'followup', name: 'Follow-up', durationMin: 20, price: 350, desc: 'Review progress and adjust treatment.' },
+          { id: 'tele', name: 'Telemedicine', durationMin: 25, price: 400, desc: 'Virtual video consultation.' },
+        ];
+        React.useEffect(() => {
+          fetch('./assets/photos.json').then(r=>r.json()).then(setProfile).catch(()=>setProfile({ doctorName:'Dr. Jane Smith', title:'MBBS, MD', tagline:'Personalized care for every patient.', photos:[] }));
+        }, []);
+        return (
+          <div>
+            <Header />
+            {profile && (
+              <DoctorHero 
+                name={profile.doctorName} 
+                title={profile.title} 
+                tagline={profile.tagline} 
+                photos={profile.photos}
+                profilePhoto={profile.profilePhoto}
+              />
+            )}
+            <section id="services" className="max-w-5xl mx-auto px-4 py-10">
+              <h2 className="text-xl font-semibold mb-4">Services</h2>
+              <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
+                {SERVICES.map(s => (
+                  <ServiceCard key={s.id} title={s.name} desc={s.desc} price={s.price} duration={s.durationMin} />
+                ))}
+              </div>
+              <div className="mt-6">
+                <a href="#/booking" className="inline-block bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg">Book an appointment</a>
+              </div>
+            </section>
+            <section className="bg-white border-t">
+              <div className="max-w-5xl mx-auto px-4 py-10 grid md:grid-cols-3 gap-4">
+                <div className="rounded-lg border p-4">
+                  <div className="text-2xl mb-2">⏱️</div>
+                  <h3 className="font-semibold mb-1">Slot-wise booking</h3>
+                  <p className="text-sm text-gray-600">Pick precise time slots that fit your day.</p>
+                </div>
+                <div className="rounded-lg border p-4">
+                  <div className="text-2xl mb-2">🔔</div>
+                  <h3 className="font-semibold mb-1">Smart reminders</h3>
+                  <p className="text-sm text-gray-600">Email and SMS notifications for both patient and doctor.</p>
+                </div>
+                <div className="rounded-lg border p-4">
+                  <div className="text-2xl mb-2">🔒</div>
+                  <h3 className="font-semibold mb-1">Secure payments</h3>
+                  <p className="text-sm text-gray-600">Online payment with receipts and confirmations.</p>
+                </div>
+              </div>
+            </section>
+            <Footer />
+          </div>
+        );
+      };
+      window.__Pages_Home = Home;
+    </script>
+
+    <script type="text/babel" data-presets="react">
+      var Header = window.Header;
+      var Footer = window.Footer;
+      var ServicePicker = window.ServicePicker;
+      var DatePicker = window.DatePicker;
+      var SlotGrid = window.SlotGrid;
+      var PatientForm = window.PatientForm;
+      var Summary = window.Summary;
+
+      const SERVICES = [
+        { id: 'consult', name: 'General Consultation', durationMin: 30, price: 500 },
+        { id: 'followup', name: 'Follow-up', durationMin: 20, price: 350 },
+        { id: 'tele', name: 'Telemedicine', durationMin: 25, price: 400 },
+      ];
+
+      function classNames(...args) { return args.filter(Boolean).join(' '); }
+
+      const BookingDemo = function BookingDemo() {
+        const [user, setUser] = React.useState(null);
+        const [serviceId, setServiceId] = React.useState('');
+        const service = SERVICES.find((s) => s.id === serviceId);
+        const [date, setDate] = React.useState(null);
+        const [selectedStartIso, setSelectedStartIso] = React.useState(null);
+        const [patient, setPatient] = React.useState({});
+        const [submitted, setSubmitted] = React.useState(false);
+
+        React.useEffect(() => {
+          // Check if user is logged in and prefill data
+          const currentUser = window.AuthUtils.requireAuth();
+          if (currentUser) {
+            setUser(currentUser);
+            const userFormData = window.AuthUtils.prefillUserData(currentUser);
+            setPatient(userFormData);
+          }
+        }, []);
+
+        function canProceed() {
+          return !!(service && date && selectedStartIso && patient.name && patient.email);
+        }
+        function handleSubmit(e) {
+          e.preventDefault();
+          if (!canProceed()) return;
+          setSubmitted(true);
+          // Navigate to mock payment page
+          window.location.hash = '#/payment';
+        }
+
+        if (!user) {
+          return <div>Redirecting to login...</div>;
+        }
+
+        return (
+          <div>
+            <Header />
+            <section id="booking" className="max-w-5xl mx-auto px-4 py-10">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-2 space-y-6">
+                  <div className="rounded-lg border bg-white p-4 space-y-4">
+                    <h2 className="text-lg font-semibold">Book an appointment</h2>
+                    <ServicePicker services={SERVICES} serviceId={serviceId} setServiceId={setServiceId} />
+                    <DatePicker date={date} setDate={(d)=>{ setDate(d); setSelectedStartIso(null); }} />
+                    <SlotGrid date={date} service={service} selectedStartIso={selectedStartIso} setSelectedStartIso={setSelectedStartIso} />
+                  </div>
+                  <div className="rounded-lg border bg-white p-4 space-y-4">
+                    <h3 className="text-lg font-semibold">Your details</h3>
+                    <PatientForm patient={patient} setPatient={setPatient} />
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <Summary service={service} startIso={selectedStartIso} />
+                  <button onClick={handleSubmit} disabled={!canProceed()} className={classNames('w-full rounded-lg px-4 py-2 font-medium', canProceed() ? 'bg-brand-600 text-white hover:bg-brand-700' : 'bg-gray-200 text-gray-500 cursor-not-allowed')}>Continue to payment</button>
+                  {submitted && (
+                    <div className="rounded-lg border bg-green-50 text-green-800 p-3 text-sm">
+                      Demo only: This would create the booking, send notifications to both patient and doctor, and redirect to payment.
+                    </div>
+                  )}
+                </div>
+              </div>
+            </section>
+            <Footer />
+          </div>
+        );
+      };
+  window.__Pages_BookingDemo = BookingDemo;
+    </script>
+
+    <!-- Finally load the router entry -->
+    <script type="text/babel" data-type="module" src="./app.jsx"></script>
+  </body>
+</html>

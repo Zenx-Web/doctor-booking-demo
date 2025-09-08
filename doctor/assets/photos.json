@@ -1,0 +1,12 @@
+{
+  "doctorName": "Dr. Jane Smith",
+  "title": "MBBS, MD (Internal Medicine)",
+  "tagline": "Personalized, preventive, and precise care",
+  "profilePhoto": "./assets/profile/profile.jpg",
+  "photos": [
+    "./assets/hero/hero1.jpg",
+    "./assets/hero/hero2.jpg",
+    "./assets/hero/hero3.jpg",
+    "./assets/hero/hero4.jpg"
+  ]
+}
